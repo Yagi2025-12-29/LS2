@@ -1,0 +1,302 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LEO-80A Simulator 2025 Ver.8</title>
+    <style>
+        body { background: #121212; color: #eee; font-family: sans-serif; margin: 0; padding: 5px; overflow: hidden; touch-action: none; }
+        #container { display: flex; flex-direction: column; align-items: center; width: 100vw; height: 100vh; }
+        #mission-panel { width: 95vw; background: #001a33; border: 1px solid #0088ff; padding: 8px; border-radius: 5px; margin-bottom: 5px; min-height: 40px; }
+        #mission-text { color: #00ffcc; font-weight: bold; font-size: 13px; line-height: 1.4; }
+        canvas { background: #222; border: 2px solid #444; width: 98vw; height: 28vh; }
+
+#dro-row {
+    display: flex;
+    justify-content: space-between; /* ← space-around をやめる */
+    width: 98vw;
+    background: #000;
+    padding: 10px 0;
+    border: 1px solid #00ffcc;
+    margin-top: 5px;
+    border-radius: 4px;
+
+
+}
+
+
+
+        .dro-unit { display: flex; align-items: center; gap: 4px; color: #0f0; font-family: monospace; font-size: 17px; }
+        .btn-zero { background: #333; color: #0f0; border: 1px solid #0f0; font-size: 10px; padding: 3px 5px; border-radius: 3px; }
+        #ui-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; width: 95vw; margin-top: 5px; }
+        .group { background: #2a2a2a; padding: 5px; border-radius: 5px; border: 1px solid #444; }
+        select, button { width: 100%; height: 32px; background: #3d3d3d; color: white; border: 1px solid #666; border-radius: 4px; font-size: 10px; margin-bottom: 2px; }
+        #controls-row { display: flex; justify-content: space-between; width: 98vw; margin-top: 8px; align-items: stretch; gap: 4px; }
+        .axis-unit { display: flex; flex-direction: column; align-items: center; gap: 4px; background: #333; padding: 6px; border-radius: 10px; border: 1px solid #555; flex: 1; }
+        .axis-label { font-size: 9px; color: #aaa; font-weight: bold; }
+        .btn-move { width: 100%; height: 52px; font-size: 26px; color: white; border-radius: 5px; border: 1px solid #666; background: #444; -webkit-user-select: none; }
+        .locked { opacity: 0.2; pointer-events: none; }
+        .btn-active { background: #a00 !important; color: #fff; }
+        .thread-ctrl-box { display: flex; flex-direction: column; gap: 2px; height: 100%; }
+        .btn-thread { background: #004400; color: #0f0; border: 1px solid #0f0; height: 49%; font-size: 10px; font-weight: bold; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+<div id="container">
+    <div id="mission-panel"><div id="mission-text">【修正版Ver.8】中ハンドル(右▲:上へ/数値増)と、相対ゼロセット(跳ね戻りなし)を確認してください。</div></div>
+    <canvas id="latheCanvas" width="800" height="400"></canvas>
+
+    <div id="ui-panel">
+        <div class="group">
+            <select id="workSelect" onchange="initWork();">
+                <option value="60">Φ60x58L(掴み12/突出46)</option>
+                <option value="50">Φ50x90L(掴み25/突出65)</option>
+                <option value="50t">Φ50x90Lトンボ(掴み45/突出45)</option>
+            </select>
+            <select id="gearSelect"><option value="0">送り: なし</option><option value="0.1">送り: 0.1(1F)</option><option value="0.3">送り: 0.3(6E)</option></select>
+        </div>
+        <div class="group">
+            <select id="toolSelect" onchange="checkToolMode();">
+                <option value="outerRough">外径荒 (超硬:黄)</option><option value="outerFinish">外径仕上 (ｻｰﾒｯﾄ:白金)</option>
+                <option value="innerRough">内径荒 (超硬:黄)</option><option value="innerFinish">内径仕上 (ｻｰﾒット:白金)</option>
+                <option value="thread">ネジ切り (HSS:金)</option><option value="chamfer">面取り (HSS:金)</option>
+                <option value="centerDrill">センタドリル (HSS:金)</option><option value="drill25">ドリルΦ25 (HSS:金)</option>
+                <option value="parting">突切り (HSS:金)</option>
+            </select>
+            <select id="rpmSelect"><option>1800</option><option selected>700</option><option>570</option><option>360</option><option>290</option><option>142</option><option>58</option></select>
+        </div>
+    </div>
+        <div id="dro-row">
+        <div class="dro-unit">Z <span id="droZ">0.0</span> <button class="btn-zero" onclick="setRelativeZero('z')">0ｾｯﾄ</button></div>
+        <div class="dro-unit">X <span id="droX">0.0</span> <button class="btn-zero" onclick="setRelativeZero('x')">0ｾｯﾄ</button></div>
+        <div class="dro-unit" style="color:#ff9900">小 <span id="droS">0.0</span> <button class="btn-zero" onclick="setRelativeZero('s')" style="color:#ff9900;border-color:#ff9900;">0ｾｯﾄ</button></div>
+    </div>
+    <div id="controls-row">
+        <div class="axis-unit"><span class="axis-label" id="z-label">Z(大)</span><div style="display:flex; width:100%; gap:4px;"><button class="btn-move" id="z-left">◀</button><button class="btn-move" id="z-right">▶</button></div></div>
+        <div class="axis-unit"><span class="axis-label">X(中)</span><div style="display:flex; width:100%; gap:4px;"><button class="btn-move" id="x-left">▼</button><button class="btn-move" id="x-right">▲</button></div></div>
+        <div class="axis-unit"><span class="axis-label" style="color:#ff9900;">小(精密)</span><div style="display:flex; width:100%; gap:4px;"><button class="btn-move" id="ts-left">▶</button><button class="btn-move" id="ts-right">◀</button></div></div>
+        <div id="mode-switch-area" style="flex:0.6;"><button id="feed-btn" onclick="toggleFeed()" style="height:100%;font-size:10px;font-weight:bold;">自動送り<br>ON/OFF</button></div>
+    </div>
+</div>
+
+<script>
+
+// ================================
+// STEP1：端面基準出し 状態管理
+// ================================
+const step1 = {
+  faceCut: false,     // 端面切削
+  zZero: false,       // Zゼロ設定（明示）
+  finishUsed: false,  // 仕上げバイト使用
+  badRpm: false       // 回転数不適
+};
+
+    const canvas = document.getElementById('latheCanvas');
+    const ctx = canvas.getContext('2d');
+    let realPos = { x: 200, z: 600, s: 0 }; // 画面内部座標 (不変)
+    let zeroRef = { x: 200, z: 600, s: 0 }; // 0セットした時の基準位置
+    let isFeedOn = false, isHalfNutOn = false, threadMoveDir = 0;
+    let accelValue = 0, holdTimer = null, holdInterval = null;
+    let work = { d: 60, out: 46, grab: 12 };
+
+function setRelativeZero(axis) {
+    zeroRef[axis] = realPos[axis];
+    updateDRO();
+
+    // STEP1：Zゼロは明示的に評価
+    if (axis === 'z') {
+        step1.zZero = true;
+        updateStep1Mission();
+    }
+}
+
+
+    function initWork() {
+        const val = document.getElementById('workSelect').value;
+        if (val === "60") work = { d: 60, out: 46, grab: 12 };
+        else if (val === "50") work = { d: 50, out: 65, grab: 25 };
+        else if (val === "50t") work = { d: 50, out: 45, grab: 45 };
+        // ワーク変更時、刃物の物理位置は変えず、DROリセットのみ
+        setRelativeZero('x'); setRelativeZero('z'); setRelativeZero('s');
+        draw();
+    }
+
+    function checkToolMode() {
+        const type = document.getElementById('toolSelect').value;
+        const area = document.getElementById('mode-switch-area');
+        isHalfNutOn = (type === 'thread');
+        if (isHalfNutOn) {
+            area.innerHTML = `<div class="thread-ctrl-box"><button class="btn-thread" onmousedown="threadMoveDir=-1" onmouseup="threadMoveDir=0" ontouchstart="threadMoveDir=-1" ontouchend="threadMoveDir=0">正転 (進む)</button><button class="btn-thread" onmousedown="threadMoveDir=1" onmouseup="threadMoveDir=0" ontouchstart="threadMoveDir=1" ontouchend="threadMoveDir=0">逆転 (戻る)</button></div>`;
+            isFeedOn = false;
+        } else {
+            area.innerHTML = `<button id="feed-btn" onclick="toggleFeed()" style="height:100%;font-size:10px;font-weight:bold;">自動送り<br>ON/OFF</button>`;
+        }
+        document.getElementById('z-label').innerText = type.includes('Drill') || type === 'drill25' ? "芯押し(大)" : "Z(大)";
+        const zBtns = [document.getElementById('z-left'), document.getElementById('z-right')];
+        zBtns.forEach(btn => btn.classList.toggle('locked', isHalfNutOn));
+        draw();
+    }
+
+    function toggleFeed() {
+        if (isHalfNutOn || document.getElementById('gearSelect').value === "0") return;
+        isFeedOn = !isFeedOn;
+        // 修正箇所：要素の存在を確認してから操作（ネジ切りモード中にエラーが出るのを防止）
+        const feedBtn = document.getElementById('feed-btn');
+        if (feedBtn) feedBtn.classList.toggle('btn-active', isFeedOn);
+    }
+
+    function doMove(dir, axis, accel) {
+        if (axis === 'z' && isHalfNutOn) return;
+        const baseUnit = 0.5; // 物理移動単位
+        const step = baseUnit * (1 + (accel * 15));
+        
+        if (axis === 'z') realPos.z += dir * step;
+        if (axis === 'x') realPos.x -= dir * step; // 右[▲]ボタン(dir:1)で物理的に上(yマイナス方向)へ動く
+        if (axis === 's') realPos.s += dir * step;
+        
+        updateDRO(); draw();
+    }
+
+    function updateDRO() {
+        // 表示数値 = (物理現在地 - ゼロセット基準地) / スケール5
+        const dispZ = (realPos.z - zeroRef.z) / 5;
+        const dispX = (zeroRef.x - realPos.x) / 5; // 上へ動くと数値増
+        const dispS = (realPos.s - zeroRef.s) / 5;
+        
+        document.getElementById('droZ').innerText = dispZ.toFixed(1);
+        document.getElementById('droX').innerText = dispX.toFixed(1);
+        document.getElementById('droS').innerText = dispS.toFixed(1);
+    }
+
+    const bindHandle = (id, dir, axis) => {
+        const btn = document.getElementById(id);
+        const start = (e) => {
+            e.preventDefault(); accelValue = 0; doMove(dir, axis, accelValue);
+            holdTimer = setTimeout(() => {
+                holdInterval = setInterval(() => {
+                    if (accelValue < 1.0) accelValue += 0.08; 
+                    doMove(dir, axis, accelValue);
+                }, 30);
+            }, 250);
+        };
+        const end = () => { clearTimeout(holdTimer); clearInterval(holdInterval); accelValue = 0; };
+        btn.addEventListener('touchstart', start); btn.addEventListener('touchend', end);
+        btn.addEventListener('mousedown', start); btn.addEventListener('mouseup', end);
+    };
+
+    bindHandle('z-left', -1, 'z'); bindHandle('z-right', 1, 'z');
+    bindHandle('x-left', -1, 'x'); bindHandle('x-right', 1, 'x'); // x-right(▲)でdir=1 → 上へ移動＆数値増
+    bindHandle('ts-left', 1, 's'); bindHandle('ts-right', -1, 's');
+
+    function drawOuterTool(bX, bY) {
+        ctx.beginPath();
+        ctx.moveTo(bX, bY);
+        ctx.lineTo(bX, bY + 40);
+        ctx.lineTo(bX + 25, bY + 30);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    function drawInnerTool(bX, bY) {
+        ctx.beginPath();
+        ctx.moveTo(bX, bY);
+        ctx.lineTo(bX, bY - 40);
+        ctx.lineTo(bX + 25, bY - 30);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    function drawThreadTool(bX, bY) {
+        const h = 40;
+        const w = 30;
+        ctx.beginPath();
+        ctx.moveTo(bX, bY);
+        ctx.lineTo(bX - w / 2, bY + h);
+        ctx.lineTo(bX + w / 2, bY + h);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    function drawChamferTool(bX, bY) {
+        const size = 35;
+        ctx.beginPath();
+        ctx.moveTo(bX, bY);
+        ctx.lineTo(bX + size, bY + size);
+        ctx.lineTo(bX + size, bY + size + 20);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    function drawDrillTool(bX, bY, length) {
+        const shaftLen = length;
+        const shaftHalf = 6;
+        ctx.beginPath();
+        ctx.fillRect(bX, bY - shaftHalf, shaftLen, shaftHalf * 2);
+        ctx.moveTo(bX + shaftLen, bY);
+        ctx.lineTo(bX + shaftLen + 18, bY - 10);
+        ctx.lineTo(bX + shaftLen + 18, bY + 10);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    function drawPartingTool(bX, bY) {
+        const w = 5;
+        const h = 45;
+        ctx.fillRect(bX, bY, w, h);
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, 800, 400);
+        const midY = 200, chuckX = 150, scale = 5;
+        ctx.fillStyle = "#444"; ctx.fillRect(0, midY-100, chuckX, 200);
+        ctx.fillStyle = "#999"; ctx.fillRect(chuckX, midY - (work.d*scale/2), work.out*scale, work.d*scale);
+        ctx.strokeStyle = "#fff"; ctx.strokeRect(chuckX, midY - (work.d*scale/2), work.out*scale, work.d*scale);
+
+        const type = document.getElementById('toolSelect').value;
+        let bX = realPos.z + (realPos.s);
+        let bY = realPos.x;
+
+        if (type.includes('Rough')) ctx.fillStyle = "#ff0"; 
+        else if (type.includes('Finish')) ctx.fillStyle = "#e5e5e5";
+        else ctx.fillStyle = "#ffd700"; 
+
+        if (type.includes('inner')) bY = midY + (midY - realPos.x); // 反転表示
+        if (type.includes('Drill') || type === 'drill25' || type === 'centerDrill') bY = midY;
+        
+        ctx.save();
+        if (type === 'outerRough' || type === 'outerFinish') {
+            drawOuterTool(bX, bY);
+        } else if (type === 'innerRough' || type === 'innerFinish') {
+            drawInnerTool(bX, bY);
+        } else if (type === 'thread') {
+            drawThreadTool(bX, bY);
+        } else if (type === 'chamfer') {
+            drawChamferTool(bX, bY);
+        } else if (type === 'centerDrill') {
+            drawDrillTool(bX, bY, 50);
+        } else if (type === 'drill25') {
+            drawDrillTool(bX, bY, 80);
+        } else if (type === 'parting') {
+            drawPartingTool(bX, bY);
+        }
+        ctx.restore();
+    }
+
+    setInterval(() => {
+        const rpm = parseInt(document.getElementById('rpmSelect').value);
+        if (isFeedOn) {
+            const p = parseFloat(document.getElementById('gearSelect').value);
+            if (p > 0) realPos.z -= (rpm / 3600) * p * 5;
+        } else if (isHalfNutOn && threadMoveDir !== 0) {
+            realPos.z += (rpm / 3600) * 2.5 * threadMoveDir * 5;
+        }
+        updateDRO(); draw();
+    }, 20);
+
+    initWork(); checkToolMode();
+</script>
+</body>
+</html>
+```
