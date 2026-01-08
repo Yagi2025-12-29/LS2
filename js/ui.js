@@ -3,13 +3,13 @@ import { simulateCutting } from "./simulate.js";
 import { renderWorkpiece } from "./render.js";
 
 export function moveZ(delta) {
-  machineState.z += delta;
+  machineState.realPos.z += delta;
   simulateCutting(machineState);
   renderWorkpiece(machineState);
 }
 
 export function moveX(delta) {
-  machineState.x += delta;
+  machineState.realPos.x += delta;
   simulateCutting(machineState);
   renderWorkpiece(machineState);
 }
