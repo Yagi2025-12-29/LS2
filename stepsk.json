@@ -1,0 +1,17 @@
+{
+  "stepId": 1,
+  "title": "Z基準端面の荒加工",
+  "instructionText": "外径荒バイトで端面を荒削りし、Z=0の基準面を作る。",
+  "requiredTool": "outerRough",
+  "requiredMode": "manual",
+  "requiredRpm": 570,
+  "requiredFeedOn": false,
+  "target": { "z": 0.0, "x": null },
+  "tolerance": { "z": 0.1, "x": null },
+  "onCorrect": 2,
+  "onWrong": {
+    "retryStepId": 1,
+    "hintText": "端面に軽く当ててからZを0に合わせてください。",
+    "penalty": 0
+  }
+}

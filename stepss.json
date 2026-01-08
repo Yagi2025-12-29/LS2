@@ -1,0 +1,54 @@
+[
+  {
+    "stepId": 1,
+    "title": "端面荒加工でZ基準を作る",
+    "instructionText": "外径荒バイトを選択し、端面に軽く当ててからZ=0に合わせ、0.4mm程度切り込んで端面を荒削りします。",
+    "requiredTool": "outerRough",
+    "requiredMode": "manual",
+    "requiredRpm": 570,
+    "requiredFeedOn": false,
+    "target": { "z": 0.0, "x": null },
+    "tolerance": { "z": 0.1, "x": null },
+    "onCorrect": 2,
+    "onWrong": {
+      "retryStepId": 1,
+      "hintText": "小ハンドルでZをゼロセットし、端面に軽く当ててから荒削りしてください。",
+      "penalty": 0
+    }
+  },
+  {
+    "stepId": 2,
+    "title": "外径荒加工 φ60→φ40.5",
+    "instructionText": "外径荒バイトでX方向に切り込み、φ40.5付近まで自動送りで荒削りします。",
+    "requiredTool": "outerRough",
+    "requiredMode": "auto",
+    "requiredRpm": 570,
+    "requiredFeedOn": true,
+    "requiredFeed": 0.3,
+    "target": { "z": 59.9, "x": 20.25 },
+    "tolerance": { "z": 0.2, "x": 0.1 },
+    "onCorrect": 3,
+    "onWrong": {
+      "retryStepId": 2,
+      "hintText": "ケガキ位置（約Z=59.9）までZを合わせ、Xは半径20.25付近まで削ってください。",
+      "penalty": 1
+    }
+  },
+  {
+    "stepId": 3,
+    "title": "溝加工 φ22.5→φ18.0",
+    "instructionText": "溝バイトに交換し、Z位置を合わせてからX方向に切り込み、φ18.0の溝を加工します。",
+    "requiredTool": "groove",
+    "requiredMode": "manual",
+    "requiredRpm": 360,
+    "requiredFeedOn": false,
+    "target": { "z": 位置は任意, "x": 9.0 },
+    "tolerance": { "z": 0.5, "x": 0.05 },
+    "onCorrect": 4,
+    "onWrong": {
+      "retryStepId": 3,
+      "hintText": "ノギスで径を確認しながら、半径9.0になるまで少しずつ切り込んでください。",
+      "penalty": 1
+    }
+  }
+]
