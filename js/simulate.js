@@ -1,6 +1,6 @@
 import { machineState } from "./state.js";
 import { renderWorkpiece } from "./render.js";
-import { updateDRO } from "./ui.js";  // DRO更新を ui.js に置く前提
+import { updateDRO } from "./ui.js";
 
 export function startSimulation() {
     setInterval(() => {
