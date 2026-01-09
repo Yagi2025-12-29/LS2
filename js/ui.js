@@ -2,6 +2,7 @@
 import { machineState } from "./state.js";
 import { renderWorkpiece } from "./render.js";
 import { simulateCutting } from "./simulate.js";
+import { evaluateStep } from "./evaluate.js";
 
 // ================================
 // 相対ゼロセット
@@ -128,6 +129,7 @@ export function doMove(dir, axis, accel) {
 
     updateDRO();
     renderWorkpiece();
+    evaluateStep();       
 }
 
 // ================================
