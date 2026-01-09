@@ -1,14 +1,21 @@
 export function simulateCutting(state) {
-  const zIndex = Math.round(state.z);
+  // Z位置を machineState.realPos.z から取得
+  const zIndex = Math.round(state.realPos.z);
+
   if (zIndex < 0 || zIndex >= state.workpieceProfile.length) return;
 
-  const toolRadius = getToolEffectiveRadius(state.toolId); // 工具形状に応じた当たり位置
-  const targetRadius = state.x + toolRadius;
+  // 工具の当たり半径
+  const toolRadius = getToolEffectiveRadius(state.toolId);
 
-  // Z方向に少し幅を持たせて削る
-  const width = 2; // ±2mm
+  // X位置（半径方向）も realPos.x から取得
+  const targetRadius = state.realPos.x + toolRadius;
+
+  // 削る幅（Z方向 ±2mm）
+  const width = 2;
+
   for (let i = zIndex - width; i <= zIndex + width; i++) {
     if (i < 0 || i >= state.workpieceProfile.length) continue;
+
     const current = state.workpieceProfile[i];
     state.workpieceProfile[i] = Math.min(current, targetRadius);
   }
@@ -18,11 +25,11 @@ function getToolEffectiveRadius(toolId) {
   switch (toolId) {
     case "outerRough":
     case "outerFinish":
-      return 0; // 単純化：Xがそのまま半径
+      return 0;
     case "groove":
       return 0;
     case "chamfer":
-      return 0; // ここは後で角度を加味してもよい
+      return 0;
     default:
       return 0;
   }
