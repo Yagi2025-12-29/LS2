@@ -1,23 +1,11 @@
 import { machineState } from "./state.js";
-import { simulateCutting } from "./simulate.js";
-import { renderWorkpiece } from "./render.js";
 
-export function moveZ(delta) {
-  machineState.realPos.z += delta;
-  simulateCutting(machineState);
-  renderWorkpiece(machineState);
-}
+export function updateDRO() {
+    const dispZ = (machineState.realPos.z - machineState.zeroRef.z) / 5;
+    const dispX = (machineState.zeroRef.x - machineState.realPos.x) / 5;
+    const dispS = (machineState.realPos.s - machineState.zeroRef.s) / 5;
 
-export function moveX(delta) {
-  machineState.realPos.x += delta;
-  simulateCutting(machineState);
-  renderWorkpiece(machineState);
-}
-
-export function setRpm(rpm) {
-  machineState.rpm = rpm;
-}
-
-export function setTool(toolId) {
-  machineState.toolId = toolId;
+    document.getElementById("droZ").innerText = dispZ.toFixed(1);
+    document.getElementById("droX").innerText = dispX.toFixed(1);
+    document.getElementById("droS").innerText = dispS.toFixed(1);
 }
