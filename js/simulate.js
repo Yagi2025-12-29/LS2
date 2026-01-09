@@ -1,36 +1,25 @@
-export function simulateCutting(state) {
-  // Z位置を machineState.realPos.z から取得
-  const zIndex = Math.round(state.realPos.z);
+import { machineState } from "./state.js";
+import { renderWorkpiece } from "./render.js";
+import { updateDRO } from "./ui.js";  // DRO更新を ui.js に置く前提
 
-  if (zIndex < 0 || zIndex >= state.workpieceProfile.length) return;
+export function startSimulation() {
+    setInterval(() => {
+        const rpm = parseInt(document.getElementById("rpmSelect").value);
 
-  // 工具の当たり半径
-  const toolRadius = getToolEffectiveRadius(state.toolId);
+        // 自動送り
+        if (machineState.isFeedOn) {
+            const p = parseFloat(document.getElementById("gearSelect").value);
+            if (p > 0) {
+                machineState.realPos.z -= (rpm / 3600) * p * 5;
+            }
 
-  // X位置（半径方向）も realPos.x から取得
-  const targetRadius = state.realPos.x + toolRadius;
+        // ネジ切り
+        } else if (machineState.isHalfNutOn && machineState.threadMoveDir !== 0) {
+            machineState.realPos.z += (rpm / 3600) * 2.5 * machineState.threadMoveDir * 5;
+        }
 
-  // 削る幅（Z方向 ±2mm）
-  const width = 2;
+        updateDRO();
+        renderWorkpiece();
 
-  for (let i = zIndex - width; i <= zIndex + width; i++) {
-    if (i < 0 || i >= state.workpieceProfile.length) continue;
-
-    const current = state.workpieceProfile[i];
-    state.workpieceProfile[i] = Math.min(current, targetRadius);
-  }
-}
-
-function getToolEffectiveRadius(toolId) {
-  switch (toolId) {
-    case "outerRough":
-    case "outerFinish":
-      return 0;
-    case "groove":
-      return 0;
-    case "chamfer":
-      return 0;
-    default:
-      return 0;
-  }
+    }, 20);
 }
