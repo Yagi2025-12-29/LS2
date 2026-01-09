@@ -2,6 +2,8 @@
 import { machineState } from "./state.js";
 import { renderWorkpiece } from "./render.js";
 import { updateDRO } from "./ui.js";
+import { evaluateStep } from "./evaluate.js";
+
 
 // ================================
 // 自動送り・ネジ切りシミュレーション
@@ -35,6 +37,9 @@ export function startSimulation() {
         // ----------------------------
         updateDRO();
         renderWorkpiece();
+        evaluateStep();   
+        
 
     }, 20); // 20msごとに更新（50fps）
 }
+
