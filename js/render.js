@@ -28,24 +28,21 @@ export function renderWorkpiece() {
     ctx.fillStyle = "#444";
     ctx.fillRect(0, midY - 100, chuckX, 200);
 
-    // ----------------------------
-    // ワーク
-    // ----------------------------
-    ctx.fillStyle = "#999";
-    ctx.fillRect(
-        chuckX,
-        midY - (machineState.work.d * scale / 2),
-        machineState.work.out * scale,
-        machineState.work.d * scale
-    );
+   // ----------------------------
+// ワーク（削れた形状を描画）
+// ----------------------------
+ctx.fillStyle = "#999";
 
-    ctx.strokeStyle = "#fff";
-    ctx.strokeRect(
-        chuckX,
-        midY - (machineState.work.d * scale / 2),
-        machineState.work.out * scale,
-        machineState.work.d * scale
-    );
+for (let z = 0; z < machineState.workpieceProfile.length; z++) {
+    const radius = machineState.workpieceProfile[z];
+    if (radius === undefined) continue;
+
+    const xPos = chuckX + z; // Z方向の位置
+    const yTop = midY - radius;
+    const yBottom = midY + radius;
+
+    ctx.fillRect(xPos, yTop, 1, radius * 2);
+}
 
     // ----------------------------
     // 工具位置計算
