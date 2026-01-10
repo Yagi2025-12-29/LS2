@@ -1,6 +1,6 @@
 export const machineState = {
-  realPos: { x: 150, z: 0, s: 0 },
-  zeroRef: { x: 150, z: 0, s: 0 },
+  realPos: { x: 40, z: 480, s: 0 },
+  zeroRef: { x: 40, z: 480, s: 0 },
 
   isFeedOn: false,
   isHalfNutOn: false,
@@ -21,6 +21,6 @@ export const machineState = {
     threadDone: false
   },
 
-  // ★ 半径150px（Φ60mm）で初期化
+  // Φ60mm (半径30mm) = 150px
   workpieceProfile: new Array(500).fill(150)
 };

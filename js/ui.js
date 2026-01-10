@@ -1,7 +1,6 @@
 // ui.js
 import { machineState } from "./state.js";
 import { renderWorkpiece } from "./render.js";
-import { simulateCutting } from "./simulate.js";
 import { evaluateStep } from "./evaluate.js";
 
 // ================================
@@ -23,9 +22,22 @@ export function setRelativeZero(axis) {
 export function initWork() {
     const val = document.getElementById("workSelect").value;
 
-    if (val === "60") machineState.work = { d: 60, out: 46, grab: 12 };
-    else if (val === "50") machineState.work = { d: 50, out: 65, grab: 25 };
-    else if (val === "50t") machineState.work = { d: 50, out: 45, grab: 45 };
+    let diameter = 60;
+    if (val === "60") {
+        machineState.work = { d: 60, out: 46, grab: 12 };
+        diameter = 60;
+    } else if (val === "50") {
+        machineState.work = { d: 50, out: 65, grab: 25 };
+        diameter = 50;
+    } else if (val === "50t") {
+        machineState.work = { d: 50, out: 45, grab: 45 };
+        diameter = 50;
+    }
+
+    // ★ プロファイルをリセット
+    // 1mm = 5px のスケール
+    const radiusPx = (diameter / 2) * 5;
+    machineState.workpieceProfile = new Array(500).fill(radiusPx);
 
     // DROリセット
     setRelativeZero("x");
@@ -129,7 +141,7 @@ export function doMove(dir, axis, accel) {
 
     updateDRO();
     renderWorkpiece();
-    evaluateStep();       
+    evaluateStep();
 }
 
 // ================================

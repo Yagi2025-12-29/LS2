@@ -1,94 +1,252 @@
-
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>LEO-80A Simulator 2025 Ver.8</title>
     <style>
-        body { background: #121212; color: #eee; font-family: sans-serif; margin: 0; padding: 5px; overflow: hidden; touch-action: none; }
-        #container { display: flex; flex-direction: column; align-items: center; width: 100vw; height: 100vh; }
-        #mission-panel { width: 95vw; background: #001a33; border: 1px solid #0088ff; padding: 8px; border-radius: 5px; margin-bottom: 5px; min-height: 40px; }
-        #mission-text { color: #00ffcc; font-weight: bold; font-size: 13px; line-height: 1.4; }
-        canvas { background: #222; border: 2px solid #444; width: 98vw; height: 28vh; }
+        body {
+            background: #121212;
+            color: #eee;
+            font-family: sans-serif;
+            margin: 0;
+            padding: 5px;
+            overflow: hidden;
+            touch-action: none;
+        }
 
-#dro-row {
-    display: flex;
-    justify-content: space-between; /* ← space-around をやめる */
-    width: 98vw;
-    background: #000;
-    padding: 10px 0;
-    border: 1px solid #00ffcc;
-    margin-top: 5px;
-    border-radius: 4px;
+        #container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #mission-panel {
+            width: 95vw;
+            background: #001a33;
+            border: 1px solid #0088ff;
+            padding: 8px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            min-height: 40px;
+        }
+
+        #mission-text {
+            color: #00ffcc;
+            font-weight: bold;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        canvas {
+            background: #222;
+            border: 2px solid #444;
+            width: 98vw;
+            height: 28vh;
+        }
+
+        #dro-row {
+            display: flex;
+            justify-content: space-between;
+            /* ← space-around をやめる */
+            width: 98vw;
+            background: #000;
+            padding: 10px 0;
+            border: 1px solid #00ffcc;
+            margin-top: 5px;
+            border-radius: 4px;
 
 
-}
+        }
 
 
 
-        .dro-unit { display: flex; align-items: center; gap: 4px; color: #0f0; font-family: monospace; font-size: 17px; }
-        .btn-zero { background: #333; color: #0f0; border: 1px solid #0f0; font-size: 10px; padding: 3px 5px; border-radius: 3px; }
-        #ui-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; width: 95vw; margin-top: 5px; }
-        .group { background: #2a2a2a; padding: 5px; border-radius: 5px; border: 1px solid #444; }
-        select, button { width: 100%; height: 32px; background: #3d3d3d; color: white; border: 1px solid #666; border-radius: 4px; font-size: 10px; margin-bottom: 2px; }
-        #controls-row { display: flex; justify-content: space-between; width: 98vw; margin-top: 8px; align-items: stretch; gap: 4px; }
-        .axis-unit { display: flex; flex-direction: column; align-items: center; gap: 4px; background: #333; padding: 6px; border-radius: 10px; border: 1px solid #555; flex: 1; }
-        .axis-label { font-size: 9px; color: #aaa; font-weight: bold; }
-        .btn-move { width: 100%; height: 52px; font-size: 26px; color: white; border-radius: 5px; border: 1px solid #666; background: #444; -webkit-user-select: none; }
-        .locked { opacity: 0.2; pointer-events: none; }
-        .btn-active { background: #a00 !important; color: #fff; }
-        .thread-ctrl-box { display: flex; flex-direction: column; gap: 2px; height: 100%; }
-        .btn-thread { background: #004400; color: #0f0; border: 1px solid #0f0; height: 49%; font-size: 10px; font-weight: bold; border-radius: 5px; }
+        .dro-unit {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #0f0;
+            font-family: monospace;
+            font-size: 17px;
+        }
+
+        .btn-zero {
+            background: #333;
+            color: #0f0;
+            border: 1px solid #0f0;
+            font-size: 10px;
+            padding: 3px 5px;
+            border-radius: 3px;
+        }
+
+        #ui-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+            width: 95vw;
+            margin-top: 5px;
+        }
+
+        .group {
+            background: #2a2a2a;
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #444;
+        }
+
+        select,
+        button {
+            width: 100%;
+            height: 32px;
+            background: #3d3d3d;
+            color: white;
+            border: 1px solid #666;
+            border-radius: 4px;
+            font-size: 10px;
+            margin-bottom: 2px;
+        }
+
+        #controls-row {
+            display: flex;
+            justify-content: space-between;
+            width: 98vw;
+            margin-top: 8px;
+            align-items: stretch;
+            gap: 4px;
+        }
+
+        .axis-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            background: #333;
+            padding: 6px;
+            border-radius: 10px;
+            border: 1px solid #555;
+            flex: 1;
+        }
+
+        .axis-label {
+            font-size: 9px;
+            color: #aaa;
+            font-weight: bold;
+        }
+
+        .btn-move {
+            width: 100%;
+            height: 52px;
+            font-size: 26px;
+            color: white;
+            border-radius: 5px;
+            border: 1px solid #666;
+            background: #444;
+            -webkit-user-select: none;
+        }
+
+        .locked {
+            opacity: 0.2;
+            pointer-events: none;
+        }
+
+        .btn-active {
+            background: #a00 !important;
+            color: #fff;
+        }
+
+        .thread-ctrl-box {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            height: 100%;
+        }
+
+        .btn-thread {
+            background: #004400;
+            color: #0f0;
+            border: 1px solid #0f0;
+            height: 49%;
+            font-size: 10px;
+            font-weight: bold;
+            border-radius: 5px;
+        }
     </style>
 </head>
+
 <body>
 
-<div id="container">
-    <div id="mission-panel"><div id="mission-text">【修正版Ver.8】中ハンドル(右▲:上へ/数値増)と、相対ゼロセット(跳ね戻りなし)を確認してください。</div></div>
-    <canvas id="latheCanvas" width="800" height="400"></canvas>
+    <div id="container">
+        <div id="mission-panel">
+            <div id="mission-text">【修正版Ver.8】中ハンドル(右▲:上へ/数値増)と、相対ゼロセット(跳ね戻りなし)を確認してください。</div>
+        </div>
+        <canvas id="latheCanvas" width="800" height="400"></canvas>
 
-    <div id="ui-panel">
-        <div class="group">
-            <select id="workSelect" onchange="initWork();">
-                <option value="60">Φ60x58L(掴み12/突出46)</option>
-                <option value="50">Φ50x90L(掴み25/突出65)</option>
-                <option value="50t">Φ50x90Lトンボ(掴み45/突出45)</option>
-            </select>
-            <select id="gearSelect"><option value="0">送り: なし</option><option value="0.1">送り: 0.1(1F)</option><option value="0.3">送り: 0.3(6E)</option></select>
+        <div id="ui-panel">
+            <div class="group">
+                <select id="workSelect" onchange="initWork();">
+                    <option value="60">Φ60x58L(掴み12/突出46)</option>
+                    <option value="50">Φ50x90L(掴み25/突出65)</option>
+                    <option value="50t">Φ50x90Lトンボ(掴み45/突出45)</option>
+                </select>
+                <select id="gearSelect">
+                    <option value="0">送り: なし</option>
+                    <option value="0.1">送り: 0.1(1F)</option>
+                    <option value="0.3">送り: 0.3(6E)</option>
+                </select>
+            </div>
+            <div class="group">
+                <select id="toolSelect" onchange="checkToolMode();">
+                    <option value="outerRough">外径荒 (超硬:黄)</option>
+                    <option value="outerFinish">外径仕上 (ｻｰﾒｯﾄ:白金)</option>
+                    <option value="innerRough">内径荒 (超硬:黄)</option>
+                    <option value="innerFinish">内径仕上 (ｻｰﾒット:白金)</option>
+                    <option value="thread">ネジ切り (HSS:金)</option>
+                    <option value="chamfer">面取り (HSS:金)</option>
+                    <option value="centerDrill">センタドリル (HSS:金)</option>
+                    <option value="drill25">ドリルΦ25 (HSS:金)</option>
+                    <option value="parting">突切り (HSS:金)</option>
+                </select>
+                <select id="rpmSelect">
+                    <option>1800</option>
+                    <option selected>700</option>
+                    <option>570</option>
+                    <option>360</option>
+                    <option>290</option>
+                    <option>142</option>
+                    <option>58</option>
+                </select>
+            </div>
         </div>
-        <div class="group">
-            <select id="toolSelect" onchange="checkToolMode();">
-                <option value="outerRough">外径荒 (超硬:黄)</option><option value="outerFinish">外径仕上 (ｻｰﾒｯﾄ:白金)</option>
-                <option value="innerRough">内径荒 (超硬:黄)</option><option value="innerFinish">内径仕上 (ｻｰﾒット:白金)</option>
-                <option value="thread">ネジ切り (HSS:金)</option><option value="chamfer">面取り (HSS:金)</option>
-                <option value="centerDrill">センタドリル (HSS:金)</option><option value="drill25">ドリルΦ25 (HSS:金)</option>
-                <option value="parting">突切り (HSS:金)</option>
-            </select>
-            <select id="rpmSelect"><option>1800</option><option selected>700</option><option>570</option><option>360</option><option>290</option><option>142</option><option>58</option></select>
-        </div>
-    </div>
         <div id="dro-row">
-        <div class="dro-unit">Z <span id="droZ">0.0</span> <button class="btn-zero" onclick="setRelativeZero('z')">0ｾｯﾄ</button></div>
-        <div class="dro-unit">X <span id="droX">0.0</span> <button class="btn-zero" onclick="setRelativeZero('x')">0ｾｯﾄ</button></div>
-        <div class="dro-unit" style="color:#ff9900">小 <span id="droS">0.0</span> <button class="btn-zero" onclick="setRelativeZero('s')" style="color:#ff9900;border-color:#ff9900;">0ｾｯﾄ</button></div>
+            <div class="dro-unit">Z <span id="droZ">0.0</span> <button class="btn-zero"
+                    onclick="setRelativeZero('z')">0ｾｯﾄ</button></div>
+            <div class="dro-unit">X <span id="droX">0.0</span> <button class="btn-zero"
+                    onclick="setRelativeZero('x')">0ｾｯﾄ</button></div>
+            <div class="dro-unit" style="color:#ff9900">小 <span id="droS">0.0</span> <button class="btn-zero"
+                    onclick="setRelativeZero('s')" style="color:#ff9900;border-color:#ff9900;">0ｾｯﾄ</button></div>
+        </div>
+        <div id="controls-row">
+            <div class="axis-unit"><span class="axis-label" id="z-label">Z(大)</span>
+                <div style="display:flex; width:100%; gap:4px;"><button class="btn-move" id="z-left">◀</button><button
+                        class="btn-move" id="z-right">▶</button></div>
+            </div>
+            <div class="axis-unit"><span class="axis-label">X(中)</span>
+                <div style="display:flex; width:100%; gap:4px;"><button class="btn-move" id="x-left">▼</button><button
+                        class="btn-move" id="x-right">▲</button></div>
+            </div>
+            <div class="axis-unit"><span class="axis-label" style="color:#ff9900;">小(精密)</span>
+                <div style="display:flex; width:100%; gap:4px;"><button class="btn-move" id="ts-left">▶</button><button
+                        class="btn-move" id="ts-right">◀</button></div>
+            </div>
+            <div id="mode-switch-area" style="flex:0.6;"><button id="feed-btn" onclick="toggleFeed()"
+                    style="height:100%;font-size:10px;font-weight:bold;">自動送り<br>ON/OFF</button></div>
+        </div>
     </div>
-    <div id="controls-row">
-        <div class="axis-unit"><span class="axis-label" id="z-label">Z(大)</span><div style="display:flex; width:100%; gap:4px;"><button class="btn-move" id="z-left">◀</button><button class="btn-move" id="z-right">▶</button></div></div>
-        <div class="axis-unit"><span class="axis-label">X(中)</span><div style="display:flex; width:100%; gap:4px;"><button class="btn-move" id="x-left">▼</button><button class="btn-move" id="x-right">▲</button></div></div>
-        <div class="axis-unit"><span class="axis-label" style="color:#ff9900;">小(精密)</span><div style="display:flex; width:100%; gap:4px;"><button class="btn-move" id="ts-left">▶</button><button class="btn-move" id="ts-right">◀</button></div></div>
-        <div id="mode-switch-area" style="flex:0.6;"><button id="feed-btn" onclick="toggleFeed()" style="height:100%;font-size:10px;font-weight:bold;">自動送り<br>ON/OFF</button></div>
-    </div>
-</div>
-<script type="module">
-  import { initWork, checkToolMode, bindAllHandles } from "./js/ui.js";
-  import { startSimulation } from "./js/simulate.js";
-
-  initWork();
-  checkToolMode();
-  bindAllHandles();
-  startSimulation();
-</script>
+    <script src="./js/main.js"></script>
 </body>
+
 </html>
 ```
