@@ -21,6 +21,6 @@ export const machineState = {
     threadDone: false
   },
 
-  // ★ ワーク形状データ（500点の半径）
-  workpieceProfile: new Array(500).fill(9999)
+  // ★ ワーク形状データ（半径150px = Φ60mm）
+  workpieceProfile: new Array(500).fill(150)
 };
