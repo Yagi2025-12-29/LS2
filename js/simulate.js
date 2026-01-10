@@ -3,7 +3,7 @@ import { machineState } from "./state.js";
 import { renderWorkpiece } from "./render.js";
 import { updateDRO } from "./ui.js";
 import { evaluateStep } from "./evaluate.js";
-
+import { simulateCutting } from "./cutting.js";
 
 // ================================
 // 自動送り・ネジ切りシミュレーション
@@ -42,4 +42,5 @@ export function startSimulation() {
 
     }, 20); // 20msごとに更新（50fps）
 }
+
 
