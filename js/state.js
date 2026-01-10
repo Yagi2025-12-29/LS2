@@ -1,6 +1,6 @@
 export const machineState = {
-  realPos: { x: 200, z: 600, s: 0 },
-  zeroRef: { x: 200, z: 600, s: 0 },
+  realPos: { x: 150, z: 0, s: 0 },
+  zeroRef: { x: 150, z: 0, s: 0 },
 
   isFeedOn: false,
   isHalfNutOn: false,
@@ -10,7 +10,7 @@ export const machineState = {
   holdTimer: null,
   holdInterval: null,
 
-  work: { d: 60, out: 46, grab: 12 },
+  work: { d: 60, out: 500, grab: 12 },
 
   step1: {
     faceCut: false,
@@ -21,6 +21,6 @@ export const machineState = {
     threadDone: false
   },
 
-  // ★ ワーク形状データ（半径150px = Φ60mm）
+  // ★ 半径150px（Φ60mm）で初期化
   workpieceProfile: new Array(500).fill(150)
 };
