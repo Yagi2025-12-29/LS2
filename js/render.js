@@ -49,8 +49,10 @@ for (let z = 0; z < machineState.workpieceProfile.length; z++) {
     // ----------------------------
     const type = document.getElementById("toolSelect").value;
 
-    let bX = machineState.realPos.z + machineState.realPos.s;
+    let bX = chuckX + machineState.realPos.z; 
     let bY = machineState.realPos.x;
+
+
 
     // 工具色
     if (type.includes("Rough")) ctx.fillStyle = "#ff0";
