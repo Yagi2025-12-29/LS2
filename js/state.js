@@ -16,6 +16,11 @@ export const machineState = {
     faceCut: false,
     zZero: false,
     finishUsed: false,
-    badRpm: false
-  }
+    badRpm: false,
+    chamferDone: false,
+    threadDone: false
+  },
+
+  // ★ ワーク形状データ（500点の半径）
+  workpieceProfile: new Array(500).fill(9999)
 };
