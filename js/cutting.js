@@ -8,13 +8,20 @@ export function simulateCutting(state) {
     const zIndex = Math.round(state.realPos.z);
     if (zIndex < 0 || zIndex >= state.workpieceProfile.length) return;
 
+    // ★ 工具の当たり半径（今は0）
     const toolRadius = getToolEffectiveRadius(state.toolId);
+
+    // ★ X座標は「中心からの距離(px)」＝そのまま半径として使える
     const targetRadius = state.realPos.x + toolRadius;
 
+    // ★ Z方向に幅を持たせて削る
     const width = 2;
     for (let i = zIndex - width; i <= zIndex + width; i++) {
         if (i < 0 || i >= state.workpieceProfile.length) continue;
+
         const current = state.workpieceProfile[i];
+
+        // ★ 小さい方が「削れた」状態
         state.workpieceProfile[i] = Math.min(current, targetRadius);
     }
 
