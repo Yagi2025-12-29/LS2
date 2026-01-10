@@ -33,14 +33,16 @@ export function startSimulation() {
         }
 
         // ----------------------------
+        // 切削処理（ワークを削る）
+        // ----------------------------
+        simulateCutting(machineState);
+
+        // ----------------------------
         // 表示更新 & 描画更新
         // ----------------------------
         updateDRO();
         renderWorkpiece();
-        evaluateStep();   
-        
+        evaluateStep();
 
     }, 20); // 20msごとに更新（50fps）
 }
-
-
